@@ -1,0 +1,39 @@
+---
+/**
+ * 倾斜的专栏黑条。
+ * 外面 .band-slot 用固定高度占住位置，所以旋转后的黑条不会压到下面的内容
+ * （这就是缩放时遮挡问题的解法）。
+ */
+import { withBase } from '../lib/url';
+
+interface Column {
+  slug: string;
+  name: string;
+  count: number;
+}
+
+interface Props {
+  columns: Column[];
+}
+
+const { columns } = Astro.props;
+---
+
+<div class="band-slot">
+  <div class="band">
+    <div class="label"><em>Columns</em>专栏</div>
+
+    {columns.map((column, index) => (
+      <a class="mod" href={withBase(`columns/${column.slug}/`)}>
+        <span class="no">{String(index + 1).padStart(2, '0')}</span>
+        <span class="nm">{column.name}</span>
+        <span class="ct">{column.count} 篇</span>
+        <span class="ar">↗</span>
+      </a>
+    ))}
+
+    <a class="mod add" href={withBase('columns/')}>
+      <span class="nm">＋ 全部专栏</span>
+    </a>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ColumnBand from '../components/ColumnBand.astro';
+import PostRow from '../components/PostRow.astro';
+import Notice from '../components/Notice.astro';
+import { HERO, SITE } from '../consts';
+import { collectColumns, getPosts, readingTime } from '../lib/posts';
+import { withBase } from '../lib/url';
+
+const posts = await getPosts();
+const columns = collectColumns(posts);
+const recent = posts.slice(0, 5);
+const totalWords = posts.reduce((sum, post) => sum + readingTime(post.body ?? '').words, 0);
+---
+
+<BaseLayout>
+  <section class="hero wrap">
+    <span class="kicker">{HERO.kicker}</span>
+
+    <h1>
+      {HERO.lines.map((line) => <span class={line.style}>{line.text}</span>)}
+    </h1>
+
+    <div class="vertical">{HERO.vertical}</div>
+    <div class="ghost">{HERO.ghostYear}</div>
+  </section>
+
+  <ColumnBand columns={columns} />
+
+  <div class="wrap">
+    <div class="home-grid">
+      <div>
+        <div class="section-head">
+          <span>Recent Notes</span>
+          <span>{String(posts.length).padStart(2, '0')} Entries</span>
+        </div>
+
+        <div class="rows">
+          {recent.map((post, index) => <PostRow post={post} index={index} showDesc />)}
+        </div>
+
+        {posts.length > recent.length && (
+          <p style="margin-top: 18px;">
+            <a class="more" href={withBase('blog/')} style="font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; border-bottom: 1px solid var(--ink); padding-bottom: 2px;">
+              查看全部 {posts.length} 篇 →
+            </a>
+          </p>
+        )}
+      </div>
+
+      <div>
+        <Notice />
+
+        <div class="stats">
+          <div><b>{String(posts.length).padStart(2, '0')}</b><span>文章</span></div>
+          <div><b>{String(columns.length).padStart(2, '0')}</b><span>专栏</span></div>
+          <div><b>{(totalWords / 1000).toFixed(1)}K</b><span>字数</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

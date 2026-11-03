@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ColumnBand from '../../components/ColumnBand.astro';
+import PostRow from '../../components/PostRow.astro';
+import { getPosts, collectColumns } from '../../lib/posts';
+import { withBase } from '../../lib/url';
+
+const posts = await getPosts();
+const columns = collectColumns(posts);
+---
+
+<BaseLayout title="专栏" description="按主题整理的全部专栏。">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Columns</p>
+      <h1>专栏</h1>
+      <p class="sub">把文章按主题归到几个专栏里。想加一个新专栏，只需要在 <code style="font-family: var(--mono); font-size: 13px;">src/consts.ts</code> 的 <code style="font-family: var(--mono); font-size: 13px;">COLUMNS</code> 里加一条，黑条会自动多一格。</p>
+    </div>
+  </div>
+
+  <ColumnBand columns={columns} />
+
+  <div class="wrap">
+    <div style="padding-block: 8px 56px;">
+      <div class="section-head"><span>All Columns</span><span>{String(columns.length).padStart(2, '0')} Total</span></div>
+
+      {columns.map((column, index) => (
+        <div class="row">
+          <span class="n">{String(index + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>
+              <a href={withBase(`columns/${column.slug}/`)} style="display: inline-block; transform-origin: left center;">
+                <span class="row-title">{column.name}</span>
+              </a>
+            </h3>
+            <p class="row-sub">
+              {column.count > 0 ? column.posts.map((post) => post.data.title).slice(0, 2).join(' · ') : '这个专栏还空着，等我来填。'}
+            </p>
+          </div>
+          <span class="cat"><b>{column.count}</b> 篇</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Notice from '../../components/Notice.astro';
+import { NOTICES } from '../../consts';
+
+const total = NOTICES.length;
+---
+
+<BaseLayout title="公告" description="站内公告与更新记录。">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Notices</p>
+      <h1>公告</h1>
+      <p class="sub">共 {total} 条。最新的一条会显示在首页右侧。</p>
+    </div>
+
+    <div style="padding-block: 8px 64px; display: grid; gap: 34px; max-width: 880px;">
+      {NOTICES.map((_, index) => <Notice index={index} showMore={false} />)}
+    </div>
+  </div>
+</BaseLayout>

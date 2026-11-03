@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../../components/PostRow.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+
+<BaseLayout title="全部笔记" description="按时间倒序排列的全部笔记。">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Archive</p>
+      <h1>全部笔记</h1>
+      <p class="sub">共 {posts.length} 篇。按 Ctrl + K 可以搜标题和正文。</p>
+    </div>
+
+    <div style="padding-block: 8px 56px;">
+      <div class="section-head">
+        <span>All Entries</span>
+        <span>{String(posts.length).padStart(2, '0')} Total</span>
+      </div>
+
+      {posts.length > 0 ? (
+        <div class="rows">
+          {posts.map((post, index) => <PostRow post={post} index={index} meta="date" showDesc />)}
+        </div>
+      ) : (
+        <p class="empty">还没有文章。</p>
+      )}
+    </div>
+  </div>
+</BaseLayout>

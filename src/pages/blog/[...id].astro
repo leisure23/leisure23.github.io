@@ -1,0 +1,125 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE } from '../../consts';
+import {
+  columnOf,
+  formatDate,
+  formatDateLong,
+  getPosts,
+  neighbours,
+  readingTime,
+} from '../../lib/posts';
+import { postUrl, withBase } from '../../lib/url';
+import type { Post } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const { minutes, words } = readingTime(post.body ?? '');
+const all = await getPosts();
+const { prev, next } = neighbours(all, post);
+const column = columnOf(post);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const canonical = new URL(postUrl(post.id), Astro.site ?? Astro.url);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.pubDate.toISOString(),
+  dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+  author: { '@type': 'Person', name: SITE.author },
+  url: canonical.href,
+  keywords: post.data.tags.join(', '),
+};
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} type="article" jsonLd={jsonLd}>
+  <div class="post-progress" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="post-head">
+      <div class="kicker-row">
+        <a href={withBase('blog/')}>← 全部笔记</a>
+        <span>·</span>
+        <time datetime={post.data.pubDate.toISOString()}>{formatDateLong(post.data.pubDate)}</time>
+        <span>·</span>
+        <span>{minutes} 分钟 · {words.toLocaleString('en-US')} 字</span>
+        {column && (
+          <>
+            <span>·</span>
+            <a href={withBase(`columns/${column.slug}/`)}>专栏：{column.name}</a>
+          </>
+        )}
+      </div>
+
+      <h1>{post.data.title}</h1>
+      <p class="desc">{post.data.description}</p>
+
+      <div class="tags">
+        {post.data.tags.map((tag) => (
+          <a class="chip tag-chip" href={withBase(`tags/${encodeURIComponent(tag)}/`)}>#{tag}</a>
+        ))}
+      </div>
+
+      {post.data.updatedDate && (
+        <p class="micro" style="margin-top: 16px;">最后更新 {formatDate(post.data.updatedDate)}</p>
+      )}
+    </header>
+
+    <div class="post-shell">
+      <article>
+        <div class="prose">
+          <Content />
+        </div>
+
+        <nav class="post-nav" aria-label="相邻文章">
+          {prev ? (
+            <a href={postUrl(prev.id)}>
+              <span class="dir">← 上一篇</span>
+              <span class="t">{prev.data.title}</span>
+            </a>
+          ) : (
+            <span></span>
+          )}
+          {next ? (
+            <a href={postUrl(next.id)}>
+              <span class="dir">下一篇 →</span>
+              <span class="t">{next.data.title}</span>
+            </a>
+          ) : (
+            <span></span>
+          )}
+        </nav>
+      </article>
+
+      {toc.length > 0 && (
+        <aside class="post-toc">
+          <p class="toc-title">本文目录 / Index</p>
+          <ol>
+            {toc.map((heading) => (
+              <li>
+                <a href={`#${heading.slug}`} class={heading.depth === 3 ? 'depth-3' : ''}>
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </aside>
+      )}
+    </div>
+  </div>
+</BaseLayout>

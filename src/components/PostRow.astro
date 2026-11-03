@@ -1,0 +1,32 @@
+---
+/** 文章列表行：悬停时标题会放大，提示可以点击 */
+import type { Post } from '../lib/posts';
+import { formatDate, primaryTag } from '../lib/posts';
+import { postUrl } from '../lib/url';
+
+interface Props {
+  post: Post;
+  index: number;
+  /** 右侧那一列显示什么 */
+  meta?: 'tag' | 'date';
+  showDesc?: boolean;
+}
+
+const { post, index, meta = 'tag', showDesc = false } = Astro.props;
+const { data } = post;
+---
+
+<div class="row">
+  <span class="n">{String(index + 1).padStart(2, '0')}</span>
+
+  <div>
+    <h3><span class="row-title">{data.title}</span></h3>
+    {showDesc && <p class="row-sub">{data.description}</p>}
+  </div>
+
+  <span class="cat">
+    {meta === 'date' ? formatDate(data.pubDate) : <b>{primaryTag(post)}</b>}
+  </span>
+
+  <a class="hit" href={postUrl(post.id)} aria-label={data.title}></a>
+</div>

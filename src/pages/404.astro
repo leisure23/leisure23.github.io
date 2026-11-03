@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/url';
+---
+
+<BaseLayout title="页面不存在" description="这个页面走丢了。" noindex>
+  <div class="wrap center-box">
+    <div>
+      <p class="big-404">404</p>
+      <h1>这个页面走丢了</h1>
+      <p>可能是链接写错了，也可能这篇文章还没写。</p>
+      <div class="actions">
+        <a class="btn solid" href={withBase('')}>回到首页</a>
+        <a class="btn" href={withBase('blog/')}>浏览笔记</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

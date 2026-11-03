@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../../components/PostRow.astro';
+import { collectTags, getPosts } from '../../lib/posts';
+import { withBase } from '../../lib/url';
+import type { Post } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const tags = collectTags(posts);
+  return tags.map(({ tag }) => ({
+    params: { tag },
+    props: { tag, posts: posts.filter((post) => post.data.tags.includes(tag)) },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: Post[];
+}
+
+const { tag, posts } = Astro.props;
+const raw = Astro.params.tag ?? tag;
+let decoded = raw;
+try {
+  decoded = decodeURIComponent(raw);
+} catch {
+  decoded = raw;
+}
+---
+
+<BaseLayout title={`#${decoded}`} description={`标签 #${decoded} 下的全部文章。`}>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Tag</p>
+      <h1>#{decoded}</h1>
+      <p class="sub">{posts.length} 篇 · 返回 <a href={withBase('tags/')} style="border-bottom: 1px solid var(--accent);">全部标签</a></p>
+    </div>
+
+    <div style="padding-block: 8px 56px;">
+      <div class="section-head"><span>Entries</span><span>{String(posts.length).padStart(2, '0')} Total</span></div>
+      <div class="rows">
+        {posts.map((post, index) => <PostRow post={post} index={index} meta="date" showDesc />)}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

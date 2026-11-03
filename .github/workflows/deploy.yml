@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+on:
+  # 只要推送到 main 分支就自动构建发布
+  push:
+    branches: [main]
+  # 也可以在 Actions 页面手动触发
+  workflow_dispatch:
+
+# 允许这个 workflow 发布到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个部署，避免互相覆盖
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 自动判断仓库类型，算出站点地址和子路径：
+      #   your-name.github.io  -> https://your-name.github.io      根路径 /
+      #   其他仓库名            -> https://your-name.github.io/仓库名  子路径 /仓库名/
+      - name: Resolve site config
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.event.repository.name }}"
+          echo "SITE_URL=https://${OWNER}.github.io" >> "$GITHUB_ENV"
+          if [ "${REPO}" = "${OWNER,,}.github.io" ]; then
+            echo "BASE_PATH=/" >> "$GITHUB_ENV"
+          else
+            echo "BASE_PATH=/${REPO}/" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build site
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

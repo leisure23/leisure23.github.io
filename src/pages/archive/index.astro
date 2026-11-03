@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../../components/PostRow.astro';
+import { getPosts, groupByYear } from '../../lib/posts';
+
+const posts = await getPosts();
+const groups = groupByYear(posts);
+---
+
+<BaseLayout title="归档" description="按年份整理的全部文章。">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Timeline</p>
+      <h1>归档</h1>
+      <p class="sub">共 {posts.length} 篇，跨越 {groups.length} 个年份。</p>
+    </div>
+
+    <div style="padding-block: 8px 64px;">
+      {groups.map((group) => (
+        <section>
+          <div class="year-head">
+            <span class="y">{group.year}</span>
+            <span class="c">{String(group.posts.length).padStart(2, '0')} 篇</span>
+          </div>
+          <div class="rows">
+            {group.posts.map((post, index) => <PostRow post={post} index={index} meta="date" />)}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

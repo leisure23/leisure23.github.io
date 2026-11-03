@@ -1,0 +1,30 @@
+---
+import { SITE } from '../consts';
+import { withBase } from '../lib/url';
+
+const current = Astro.url.pathname;
+const items = [
+  { label: '笔记', href: withBase('blog/'), match: (p: string) => p.startsWith(withBase('blog/')) },
+  { label: '专栏', href: withBase('columns/'), match: (p: string) => p.startsWith(withBase('columns/')) },
+  { label: '标签', href: withBase('tags/'), match: (p: string) => p.startsWith(withBase('tags/')) },
+  { label: '归档', href: withBase('archive/'), match: (p: string) => p.startsWith(withBase('archive/')) },
+  { label: '关于', href: withBase('about/'), match: (p: string) => p.startsWith(withBase('about/')) },
+];
+---
+
+<header class="wrap">
+  <div class="masthead">
+    <div class="ident">
+      <a href={withBase('')}><b>{SITE.title}</b></a><br />
+      {SITE.issue}
+    </div>
+
+    <nav class="nav" aria-label="主导航">
+      {items.map((item) => (
+        <a href={item.href} aria-current={item.match(current) ? 'page' : undefined}>{item.label}</a>
+      ))}
+      <button type="button" data-search-open aria-label="搜索文章">搜索 ⌘K</button>
+      <a href={withBase('rss.xml')}>RSS</a>
+    </nav>
+  </div>
+</header>

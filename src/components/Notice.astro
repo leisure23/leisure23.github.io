@@ -1,0 +1,31 @@
+---
+/** 公告模块：内容来自 consts.ts 的 NOTICES，改一行就更新 */
+import { NOTICES } from '../consts';
+import { withBase } from '../lib/url';
+import { formatDate } from '../lib/posts';
+
+interface Props {
+  /** 显示第几条，默认最新一条 */
+  index?: number;
+  /** 是否显示「查看全部公告」 */
+  showMore?: boolean;
+}
+
+const { index = 0, showMore = true } = Astro.props;
+const notice = NOTICES[index] ?? NOTICES[0];
+---
+
+<div class="notice">
+  <div class="head">
+    <span class="tag"><i></i>Notice 公告</span>
+    <span class="date">Updated {formatDate(new Date(notice.updated))}</span>
+  </div>
+
+  <div class="body" set:html={notice.html} />
+
+  {showMore && NOTICES.length > 1 && (
+    <a class="more" href={withBase('notice/')}>查看全部公告 →</a>
+  )}
+
+  <div class="sig">— 最后发布于 {notice.publishedAt}</div>
+</div>

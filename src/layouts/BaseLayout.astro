@@ -1,0 +1,305 @@
+---
+/**
+ * 页面骨架：页眉、页脚、搜索面板、以及全站交互脚本。
+ */
+import { ClientRouter } from 'astro:transitions';
+import { SITE } from '../consts';
+import { withBase } from '../lib/url';
+import Masthead from '../components/Masthead.astro';
+import Footer from '../components/Footer.astro';
+import SearchPalette from '../components/SearchPalette.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  type = 'website',
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} · ${SITE.subTitle}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="author" content={SITE.author} />
+    <meta name="theme-color" content="#f1efea" />
+    <meta name="color-scheme" content="light" />
+
+    <link rel="icon" type="image/svg+xml" href={withBase('favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={withBase('rss.xml')} />
+    <link rel="sitemap" href={withBase('sitemap-index.xml')} />
+
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:site_name" content={SITE.title} />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="top-rule"></div>
+    <Masthead />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <SearchPalette />
+
+    <script>
+      import { withBaseUrl } from '../lib/client';
+
+      let globalsBound = false;
+
+      function initGlobals() {
+        if (globalsBound) return;
+        globalsBound = true;
+
+        const progress = document.querySelector<HTMLElement>('.post-progress');
+
+        const onScroll = () => {
+          if (!progress) return;
+          const doc = document.documentElement;
+          const max = doc.scrollHeight - window.innerHeight;
+          const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+          progress.style.transform = `scaleX(${ratio})`;
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        onScroll();
+
+        document.addEventListener('keydown', (event) => {
+          const isCmdK = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
+          const isSlash = event.key === '/' && !isTyping(event.target);
+          if (isCmdK || isSlash) {
+            event.preventDefault();
+            openSearch();
+          }
+          if (event.key === 'Escape') closeSearch();
+        });
+
+        document.addEventListener('click', (event) => {
+          const target = event.target as Element;
+          if (target?.closest?.('[data-search-open]')) {
+            event.preventDefault();
+            openSearch();
+          }
+          if (target?.closest?.('[data-search-close]') || target?.classList?.contains('search-modal')) {
+            closeSearch();
+          }
+        });
+      }
+
+      function isTyping(target: EventTarget | null): boolean {
+        const el = target as HTMLElement | null;
+        if (!el) return false;
+        return /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable;
+      }
+
+      type SearchDoc = {
+        title: string;
+        description: string;
+        url: string;
+        tags: string[];
+        date: string;
+        text: string;
+      };
+
+      let searchIndex: SearchDoc[] | null = null;
+      let activeIndex = 0;
+
+      async function ensureIndex(): Promise<SearchDoc[]> {
+        if (searchIndex) return searchIndex;
+        try {
+          const response = await fetch(withBaseUrl('search.json'));
+          searchIndex = (await response.json()) as SearchDoc[];
+        } catch {
+          searchIndex = [];
+        }
+        return searchIndex;
+      }
+
+      async function openSearch() {
+        const modal = document.getElementById('search-modal');
+        const input = document.getElementById('search-input') as HTMLInputElement | null;
+        if (!modal || !input) return;
+        modal.classList.add('open');
+        document.body.classList.add('modal-open');
+        input.value = '';
+        activeIndex = 0;
+        renderResults((await ensureIndex()).slice(0, 8), '');
+        requestAnimationFrame(() => input.focus());
+      }
+
+      function closeSearch() {
+        const modal = document.getElementById('search-modal');
+        if (!modal?.classList.contains('open')) return;
+        modal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+      }
+
+      function score(doc: SearchDoc, query: string): number {
+        const q = query.toLowerCase();
+        const title = doc.title.toLowerCase();
+        if (title === q) return 100;
+        if (title.startsWith(q)) return 80;
+        if (title.includes(q)) return 60;
+        if (doc.tags.some((tag) => tag.toLowerCase().includes(q))) return 40;
+        if (doc.description.toLowerCase().includes(q)) return 30;
+        if (doc.text.toLowerCase().includes(q)) return 10;
+        return 0;
+      }
+
+      function search(query: string): SearchDoc[] {
+        const q = query.trim();
+        if (!q) return (searchIndex ?? []).slice(0, 8);
+        return (searchIndex ?? [])
+          .map((doc) => ({ doc, s: score(doc, q) }))
+          .filter((item) => item.s > 0)
+          .sort((a, b) => b.s - a.s)
+          .slice(0, 8)
+          .map((item) => item.doc);
+      }
+
+      function escapeHtml(value: string): string {
+        return value.replace(/[&<>"']/g, (char) =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char] ?? char,
+        );
+      }
+
+      function renderResults(list: SearchDoc[], query: string) {
+        const container = document.getElementById('search-results');
+        if (!container) return;
+        activeIndex = 0;
+        if (list.length === 0) {
+          container.innerHTML = `<div class="search-empty">没有找到和「${escapeHtml(query)}」相关的文章</div>`;
+          return;
+        }
+        container.innerHTML = list
+          .map(
+            (doc, i) => `
+            <a href="${doc.url}" data-index="${i}"${i === 0 ? ' class="active"' : ''}>
+              <span class="r-no">${String(i + 1).padStart(2, '0')}</span>
+              <span class="r-title">${escapeHtml(doc.title)}</span>
+              <span class="r-desc">${escapeHtml(doc.tags[0] ?? '')}</span>
+            </a>`,
+          )
+          .join('');
+      }
+
+      function moveActive(delta: number) {
+        const links = [...document.querySelectorAll<HTMLAnchorElement>('#search-results a')];
+        if (links.length === 0) return;
+        links[activeIndex]?.classList.remove('active');
+        activeIndex = (activeIndex + delta + links.length) % links.length;
+        links[activeIndex]?.classList.add('active');
+        links[activeIndex]?.scrollIntoView({ block: 'nearest' });
+      }
+
+      function bindSearchInput() {
+        const input = document.getElementById('search-input') as HTMLInputElement | null;
+        if (!input || input.dataset.bound === '1') return;
+        input.dataset.bound = '1';
+        input.addEventListener('input', () => {
+          renderResults(search(input.value), input.value);
+        });
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            moveActive(1);
+          } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            moveActive(-1);
+          } else if (event.key === 'Enter') {
+            const active = document.querySelector<HTMLAnchorElement>('#search-results a.active');
+            if (active) {
+              event.preventDefault();
+              window.location.href = active.href;
+            }
+          }
+        });
+      }
+
+      function initPage() {
+        bindSearchInput();
+
+        for (const pre of document.querySelectorAll<HTMLPreElement>('.prose pre')) {
+          if (pre.dataset.copy === '1') continue;
+          pre.dataset.copy = '1';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'copy-btn';
+          button.textContent = '复制';
+          button.addEventListener('click', async () => {
+            const code = pre.querySelector('code')?.textContent ?? '';
+            try {
+              await navigator.clipboard.writeText(code);
+              button.textContent = '已复制';
+              button.classList.add('done');
+            } catch {
+              button.textContent = '失败';
+            }
+            setTimeout(() => {
+              button.textContent = '复制';
+              button.classList.remove('done');
+            }, 1600);
+          });
+          pre.appendChild(button);
+        }
+
+        const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('.post-toc a')];
+        if (tocLinks.length > 0 && 'IntersectionObserver' in window) {
+          const headings = tocLinks
+            .map((link) => document.querySelector<HTMLElement>(decodeURIComponent(link.hash)))
+            .filter((el): el is HTMLElement => Boolean(el));
+          const tocObserver = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                const id = `#${entry.target.id}`;
+                tocLinks.forEach((link) => {
+                  link.classList.toggle('active', decodeURIComponent(link.hash) === id);
+                });
+              }
+            },
+            { rootMargin: '-12% 0px -72% 0px' },
+          );
+          headings.forEach((heading) => tocObserver.observe(heading));
+        }
+      }
+
+      document.addEventListener('astro:page-load', () => {
+        initGlobals();
+        initPage();
+      });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          initGlobals();
+          initPage();
+        });
+      }
+    </script>
+  </body>
+</html>

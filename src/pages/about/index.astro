@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { SITE } from '../../consts';
+import { collectColumns, collectTags, getPosts, readingTime } from '../../lib/posts';
+
+const posts = await getPosts();
+const tags = collectTags(posts);
+const columns = collectColumns(posts);
+const totalWords = posts.reduce((sum, post) => sum + readingTime(post.body ?? '').words, 0);
+
+const stack = [
+  { name: 'Astro 6', note: '静态站点框架，输出纯 HTML' },
+  { name: 'Markdown', note: '写文章只需要文本编辑器' },
+  { name: 'Shiki', note: '代码高亮，构建时生成' },
+  { name: 'GitHub Actions', note: '推代码自动构建发布' },
+];
+---
+
+<BaseLayout title="关于" description={`关于 ${SITE.author} 和这个博客。`}>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">About</p>
+      <h1>关于</h1>
+    </div>
+
+    <div class="about-grid">
+      <aside class="who">
+        <div class="avatar">{SITE.author.slice(0, 1).toUpperCase()}</div>
+        <h2>{SITE.author}</h2>
+        <p class="role">计算机科学与技术<br />本科在读</p>
+        <div class="links">
+          {SITE.socials.map((item) => (
+            <a href={item.href}>
+              <Icon name={item.icon} size={12} />
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </aside>
+
+      <div>
+        <div class="about-body" set:html={SITE.about} />
+
+        <div class="tech-list">
+          <div class="t-row">
+            <b>文章</b>
+            <span>{String(posts.length).padStart(2, '0')} 篇</span>
+          </div>
+          <div class="t-row">
+            <b>专栏</b>
+            <span>{String(columns.length).padStart(2, '0')} 个</span>
+          </div>
+          <div class="t-row">
+            <b>标签</b>
+            <span>{String(tags.length).padStart(2, '0')} 个</span>
+          </div>
+          <div class="t-row">
+            <b>字数</b>
+            <span>{totalWords.toLocaleString('en-US')} 字</span>
+          </div>
+          {stack.map((item) => (
+            <div class="t-row">
+              <b>{item.name}</b>
+              <span>{item.note}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

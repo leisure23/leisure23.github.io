@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { collectTags, getPosts } from '../../lib/posts';
+import { withBase } from '../../lib/url';
+
+const posts = await getPosts();
+const tags = collectTags(posts);
+---
+
+<BaseLayout title="标签" description="按标签浏览全部帖子。">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Tags</p>
+      <h1>标签</h1>
+      <p class="sub">共 {tags.length} 个标签。后面的数字是文章数量。</p>
+    </div>
+
+    <div style="padding-block: 8px 64px;">
+      <div class="tag-table">
+        {tags.map((item) => (
+          <a href={withBase(`tags/${encodeURIComponent(item.tag)}/`)}>
+            <span class="name">#{item.tag}</span>
+            <span class="count">{String(item.count).padStart(2, '0')} 篇</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

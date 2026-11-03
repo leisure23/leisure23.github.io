@@ -1,0 +1,21 @@
+---
+import { SITE } from '../consts';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="wrap">
+  <div class="footer">
+    <span>© {year} {SITE.author}</span>
+    <span>Built with Astro · Deployed on GitHub Pages</span>
+    <div class="socials">
+      {SITE.socials.map((item) => (
+        <a href={item.href} aria-label={item.label}>
+          <Icon name={item.icon} size={13} />
+          {item.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</footer>

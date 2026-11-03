@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../../components/PostRow.astro';
+import { COLUMNS } from '../../consts';
+import { getPosts } from '../../lib/posts';
+import { withBase } from '../../lib/url';
+import type { Post } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return COLUMNS.map((column) => ({
+    params: { slug: column.slug },
+    props: {
+      column,
+      posts: posts.filter((post) =>
+        post.data.tags.some((tag) => (column.tags as readonly string[]).includes(tag)),
+      ),
+    },
+  }));
+}
+
+interface Props {
+  column: { slug: string; name: string; tags: readonly string[] };
+  posts: Post[];
+}
+
+const { column, posts } = Astro.props;
+const currentIndex = COLUMNS.findIndex((item) => item.slug === column.slug);
+---
+
+<BaseLayout title={column.name} description={`专栏「${column.name}」下的全部文章。`}>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Column {String(currentIndex + 1).padStart(2, '0')}</p>
+      <h1>{column.name}</h1>
+      <p class="sub">
+        共 {posts.length} 篇 · 标签 {column.tags.map((tag) => `#${tag}`).join(' ')}
+      </p>
+    </div>
+
+    <div style="padding-block: 8px 56px;">
+      <div class="section-head">
+        <span>Entries</span>
+        <a href={withBase('columns/')} style="color: var(--muted);">← 全部专栏</a>
+      </div>
+
+      {posts.length > 0 ? (
+        <div class="rows">
+          {posts.map((post, index) => <PostRow post={post} index={index} meta="date" showDesc />)}
+        </div>
+      ) : (
+        <p class="empty">这个专栏还空着。去 <code style="font-family: var(--mono);">src/content/blog/</code> 写一篇，给它加上 <code style="font-family: var(--mono);">#{column.tags[0]}</code> 标签就会出现在这里。</p>
+      )}
+    </div>
+  </div>
+</BaseLayout>
