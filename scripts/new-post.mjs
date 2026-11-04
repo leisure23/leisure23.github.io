@@ -64,7 +64,7 @@ try {
 }
 
 const template = `---
-title: ${title}
+title: ${JSON.stringify(title)}
 description: 一句话说清这篇文章讲了什么，会出现在列表页和搜索结果里。
 pubDate: ${today}
 tags: [待分类]
