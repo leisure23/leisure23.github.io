@@ -48,10 +48,10 @@ export const HERO = {
 export const COLUMNS = [
   { slug: 'algo', name: '算法', tags: ['算法'] },
   { slug: 'data-structure', name: '数据结构', tags: ['数据结构'] },
-  { slug: 'network', name: '计算机网络', tags: ['计算机网络', 'TCP'] },
   { slug: 'os', name: '操作系统', tags: ['操作系统'] },
   { slug: 'pitfalls', name: '踩坑记录', tags: ['建站'] },
   { slug: 'why', name: '原理追问', tags: ['复杂度'] },
+  { slug: 'eggs', name: '彩蛋', tags: ['彩蛋'] },
 ] as const;
 
 /**
