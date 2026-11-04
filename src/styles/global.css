@@ -886,7 +886,7 @@ main {
   line-height: 1.95;
   color: #26231f;
   overflow-wrap: break-word;
-  max-width: 44em;
+  max-width: 46em;
 }
 
 .prose > * + * {
@@ -1034,14 +1034,14 @@ main {
 .prose pre {
   position: relative;
   margin-block: 1.5em;
-  padding: 22px 20px;
+  padding: 24px 22px;
   background: var(--ink) !important;
   color: var(--bg);
   border: 0;
   border-radius: 0;
   overflow-x: auto;
-  font-size: 13.5px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.78;
 }
 
 .prose pre code {

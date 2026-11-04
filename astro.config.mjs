@@ -14,10 +14,9 @@ export default defineConfig({
   integrations: [sitemap()],
   markdown: {
     shikiConfig: {
-      themes: {
-        light: 'github-light',
-        dark: 'github-dark',
-      },
+      // 全站只有一个浅色设计，但代码块固定是黑底，
+      // 所以这里必须用「深色主题」，否则浅色配色压在黑底上会看不清。
+      theme: 'github-dark',
       wrap: false,
     },
   },
