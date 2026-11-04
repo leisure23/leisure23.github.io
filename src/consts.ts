@@ -6,7 +6,7 @@ export const SITE = {
   title: 'Leisure',
   /** 用于 <title> 后缀 */
   subTitle: '笔记与代码',
-  description: '一个计算机专业学生的知识仓库。把课堂上的、书里的、踩坑踩出来的东西，写成能回看的笔记。',
+  description: '一个知识仓库。把课堂上的、书里的、踩坑踩出来的东西，写成能回看的笔记。',
   author: 'Leisure',
   url: 'https://leisure23.github.io',
   lang: 'zh-CN',
@@ -16,9 +16,9 @@ export const SITE = {
     { label: 'GitHub', href: 'https://github.com/leisure23', icon: 'github' },
   ],
   about: `
-    <p>你好，我是 <strong>Leisure</strong>，计算机专业在读。</p>
-    <p>这个博客是我给自己建的「外置大脑」。学完一个东西，如果我能把它讲清楚写下来，那才算真的学会了。</p>
-    <p>这里会出现的：数据结构与算法的手写实现与复杂度分析、计网与操作系统的笔记、语言的边角料，以及那些花了我三小时才搞明白的坑。</p>
+    <p>你好，我是 <strong>Leisure</strong>，欢迎来到我的博客</p>
+    <p>希望这里的内容能帮到你</p>
+    <p>感谢您的到来</p>
   `,
 } as const;
 
@@ -46,6 +46,7 @@ export const HERO = {
  * 想加一个就在数组里加一条，黑条会自动多一格。
  */
 export const COLUMNS = [
+  { slug: 'web', name: 'web', tags: ['web'] },
   { slug: 'algo', name: '算法', tags: ['算法'] },
   { slug: 'data-structure', name: '数据结构', tags: ['数据结构'] },
   { slug: 'os', name: '操作系统', tags: ['操作系统'] },
@@ -60,9 +61,9 @@ export const COLUMNS = [
  */
 export const NOTICES = [
   {
-    updated: '2026-11-03',
-    publishedAt: '2026-11-03 21:40',
-    html: '十一月计划：把 TCP 那篇的<b>时序图</b>补上，然后开始整理《操作系统概念》第 4 章的读书笔记。有想让我写的题目，欢迎来邮件。',
+    updated: '2026-11-05',
+    publishedAt: '2026-11-05 0:14',
+    html: '<b>正在努力更新中...</b>',
   },
 ] as const;
 
