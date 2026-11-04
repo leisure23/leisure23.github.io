@@ -1030,14 +1030,17 @@ main {
   white-space: break-spaces;
 }
 
-/* 代码块：黑底反白，跟黑条呼应 */
+/* 代码块：纸感浅底 + 细墨框 + 朱红边注
+   配色原理：底色只比页面深一点点，代码是深墨字（github-light 主题），
+   左侧一道朱红竖线跟标题红线、引用块呼应，读长文时余光一扫就知道到代码了。 */
 .prose pre {
   position: relative;
   margin-block: 1.5em;
-  padding: 24px 22px;
-  background: var(--ink) !important;
-  color: var(--bg);
-  border: 0;
+  padding: 24px 22px 24px 26px;
+  background: #eae5da !important;
+  color: #24292e;
+  border: 1px solid #cfc8b9;
+  border-left: 3px solid var(--accent);
   border-radius: 0;
   overflow-x: auto;
   font-size: 14px;
@@ -1053,7 +1056,7 @@ main {
 }
 
 .prose .astro-code {
-  background: var(--ink) !important;
+  background: #eae5da !important;
 }
 
 .copy-btn {
@@ -1065,9 +1068,9 @@ main {
   align-items: center;
   gap: 5px;
   padding: 4px 9px;
-  border: 1px solid #3a3a3a;
-  background: rgba(13, 13, 13, 0.86);
-  color: var(--faint);
+  border: 1px solid #cfc8b9;
+  background: rgba(234, 229, 218, 0.94);
+  color: var(--muted);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1081,13 +1084,13 @@ main {
 }
 
 .copy-btn:hover {
-  color: var(--bg);
-  border-color: var(--bg);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .copy-btn.done {
-  color: #7ee787;
-  border-color: #7ee787;
+  color: #1a7f37;
+  border-color: #1a7f37;
 }
 
 /* --------------------------------------------------------------- 标签页 */
