@@ -14,7 +14,6 @@ export const SITE = {
   issue: 'ISSUE 01 / NOV 2026 / ONLINE',
   socials: [
     { label: 'GitHub', href: 'https://github.com/leisure23', icon: 'github' },
-    { label: 'RSS', href: '/rss.xml', icon: 'rss' },
   ],
   about: `
     <p>你好，我是 <strong>Leisure</strong>，计算机专业在读。</p>

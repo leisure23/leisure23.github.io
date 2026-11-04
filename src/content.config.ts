@@ -11,7 +11,7 @@ const blog = defineCollection({
   schema: z.object({
     /** 标题 */
     title: z.string(),
-    /** 摘要，会出现在列表卡片、RSS、SEO 描述里 */
+    /** 摘要，会出现在列表、搜索结果和 SEO 描述里 */
     description: z.string(),
     /** 发布日期，写成 2026-03-01 这种就行 */
     pubDate: z.coerce.date(),

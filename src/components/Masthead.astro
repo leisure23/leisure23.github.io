@@ -24,7 +24,6 @@ const items = [
         <a href={item.href} aria-current={item.match(current) ? 'page' : undefined}>{item.label}</a>
       ))}
       <button type="button" data-search-open aria-label="搜索文章">搜索 ⌘K</button>
-      <a href={withBase('rss.xml')}>RSS</a>
     </nav>
   </div>
 </header>

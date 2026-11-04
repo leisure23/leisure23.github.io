@@ -182,5 +182,8 @@ export const NOTICES = [
 
 - [Astro 6](https://astro.build) — 静态站点框架，默认零 JS
 - Shiki — 代码高亮，构建时生成，无运行时开销
-- `@astrojs/rss` / `@astrojs/sitemap`
+- `@astrojs/sitemap` — 站点地图
 - GitHub Actions — 自动构建部署
+
+> RSS 功能已经移除（`rss.xml` 不再生成）。`@astrojs/rss` 这个包还留在 `package.json` 里但没用了，
+> 想彻底清掉可以运行 `npm uninstall @astrojs/rss`。
