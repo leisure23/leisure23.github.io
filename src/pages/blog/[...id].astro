@@ -5,7 +5,6 @@ import { SITE } from '../../consts';
 import {
   columnOf,
   formatDate,
-  formatDateLong,
   getPosts,
   neighbours,
   readingTime,
@@ -55,7 +54,7 @@ const jsonLd = {
       <div class="kicker-row">
         <a href={withBase('blog/')}>← 全部笔记</a>
         <span>·</span>
-        <time datetime={post.data.pubDate.toISOString()}>{formatDateLong(post.data.pubDate)}</time>
+        <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
         <span>·</span>
         <span>{minutes} 分钟 · {words.toLocaleString('en-US')} 字</span>
         {column && (

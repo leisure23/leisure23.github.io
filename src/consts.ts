@@ -61,8 +61,8 @@ export const COLUMNS = [
  */
 export const NOTICES = [
   {
-    updated: '2026-11-05',
-    publishedAt: '2026-11-05 0:14',
+    /** 发布时间，精确到分钟：2026-11-05T00:14 */
+    publishedAt: '2026-11-05T00:14',
     html: '<b>正在努力更新中...</b>',
   },
 ] as const;

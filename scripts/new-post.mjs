@@ -52,6 +52,9 @@ if (!slug) {
 const now = new Date();
 const pad = (n) => String(n).padStart(2, '0');
 const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+// 带上具体时间（精确到分钟）：同一天发多篇文章时，首页才能按"谁后发谁在上"排。
+// 页面上只显示年月日（2026-11-05），时分不露出。
+const stamp = `${today}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
 const filePath = path.join(contentDir, `${slug}.md`);
 
@@ -66,7 +69,7 @@ try {
 const template = `---
 title: ${JSON.stringify(title)}
 description: 一句话说清这篇文章讲了什么，会出现在列表页和搜索结果里。
-pubDate: ${today}
+pubDate: ${stamp}
 tags: [待分类]
 emoji: "📝"
 hue: 255

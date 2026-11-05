@@ -3,12 +3,18 @@ import { COLUMNS } from '../consts';
 
 export type Post = CollectionEntry<'blog'>;
 
-/** 所有要展示的文章（正式构建时过滤草稿），按时间倒序 */
+/** 所有要展示的文章（正式构建时过滤草稿），按发布时间倒序：新的在前 */
 export async function getPosts(): Promise<Post[]> {
   const posts = await getCollection('blog', ({ data }) =>
     import.meta.env.PROD ? data.draft !== true : true,
   );
-  return posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+  return posts.sort(
+    (a, b) =>
+      // 主键：发布时间，越晚越靠前（pubDate 现在精确到秒）
+      b.data.pubDate.getTime() - a.data.pubDate.getTime() ||
+      // 兜底：时间完全相同时按文件名倒序，保证每次构建顺序一致、不会乱跳
+      b.id.localeCompare(a.id),
+  );
 }
 
 /** 中文按字、英文按词，混合统计 */
@@ -28,15 +34,22 @@ export function readingTime(body: string): { minutes: number; words: number } {
   return { minutes, words };
 }
 
-/** 2026.11.02 */
+/** 日期统一格式：2026-11-05 */
 export function formatDate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
-  return `${y}.${m}.${d}`;
+  return `${y}-${m}-${d}`;
 }
 
-/** 2026 年 11 月 2 日 */
+/** 日期 + 时间（精确到分钟）：2026-11-05 14:30 */
+export function formatDateTime(date: Date): string {
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  return `${formatDate(date)} ${hh}:${mm}`;
+}
+
+/** 2026 年 11 月 5 日 */
 export function formatDateLong(date: Date): string {
   return new Intl.DateTimeFormat('zh-CN', {
     year: 'numeric',

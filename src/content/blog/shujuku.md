@@ -1,7 +1,7 @@
 ---
 title: "MySQL数据库基础"
 description: 这是一篇数据库基础内容,
-pubDate: 2026-11-04
+pubDate: 2026-11-04T22:14
 tags: [数据库, MySQL, sql, web]
 emoji: "😊"
 hue: 255

@@ -1,7 +1,7 @@
 ---
 title: "Re0:从零开始"
 description: 一句话说清这篇文章讲了什么，会出现在列表页和搜索结果里。
-pubDate: 2026-11-04
+pubDate: 2026-11-04T16:58
 tags: [彩蛋]
 emoji: "📝"
 hue: 255
