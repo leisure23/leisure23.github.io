@@ -93,7 +93,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
           const isSlash = event.key === '/' && !isTyping(event.target);
           if (isCmdK || isSlash) {
             event.preventDefault();
-            openSearch();
+            // 页面上有胶囊搜索框就聚焦它，没有（比如文章页）才弹面板
+            const inline = document.querySelector<HTMLInputElement>('[data-inline-input]');
+            if (inline) {
+              inline.focus();
+              inline.select();
+            } else {
+              openSearch();
+            }
           }
           if (event.key === 'Escape') closeSearch();
         });

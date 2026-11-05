@@ -222,6 +222,19 @@ main {
   padding-block: clamp(32px, 4vw, 48px) 0;
 }
 
+/* 首屏顶栏：左 kicker、右搜索框 */
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-top .page-search {
+  margin-top: 0;
+}
+
 .kicker {
   display: inline-block;
   background: var(--ink);
@@ -261,7 +274,8 @@ main {
 .hero .vertical {
   position: absolute;
   right: var(--pad);
-  top: clamp(40px, 5vw, 56px);
+  /* 往下挪一点，给右上角的搜索框让出位置 */
+  top: clamp(108px, 12vw, 156px);
   writing-mode: vertical-rl;
   font-size: 13px;
   letter-spacing: 0.42em;
