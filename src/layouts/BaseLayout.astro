@@ -158,27 +158,46 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
         document.body.classList.remove('modal-open');
       }
 
+      /** 统一清洗查询词：去掉开头的 #（这样 #web 和 web 都能搜到标签），转小写 */
+      function normalizeQuery(raw: string): { q: string; tagOnly: boolean } {
+        const trimmed = raw.trim();
+        const tagOnly = trimmed.startsWith('#');
+        return { q: (tagOnly ? trimmed.slice(1) : trimmed).toLowerCase(), tagOnly };
+      }
+
       function score(doc: SearchDoc, query: string): number {
-        const q = query.toLowerCase();
+        const { q, tagOnly } = normalizeQuery(query);
+        if (!q) return 0;
         const title = doc.title.toLowerCase();
+        const tagHit = doc.tags.some((tag) => tag.toLowerCase().includes(q));
+        if (tagOnly && !tagHit) return 0; // 写了 # 就只找标签
         if (title === q) return 100;
         if (title.startsWith(q)) return 80;
         if (title.includes(q)) return 60;
-        if (doc.tags.some((tag) => tag.toLowerCase().includes(q))) return 40;
+        if (tagHit) return 40;
         if (doc.description.toLowerCase().includes(q)) return 30;
         if (doc.text.toLowerCase().includes(q)) return 10;
         return 0;
       }
 
       function search(query: string): SearchDoc[] {
-        const q = query.trim();
+        const { q } = normalizeQuery(query);
         if (!q) return (searchIndex ?? []).slice(0, 8);
         return (searchIndex ?? [])
-          .map((doc) => ({ doc, s: score(doc, q) }))
+          .map((doc) => ({ doc, s: score(doc, query) }))
           .filter((item) => item.s > 0)
           .sort((a, b) => b.s - a.s)
           .slice(0, 8)
           .map((item) => item.doc);
+      }
+
+      /** 从文章索引里汇总出所有标签 + 篇数 */
+      function buildTagIndex(docs: SearchDoc[]): Map<string, number> {
+        const map = new Map<string, number>();
+        for (const doc of docs) {
+          for (const tag of doc.tags) map.set(tag, (map.get(tag) ?? 0) + 1);
+        }
+        return map;
       }
 
       function escapeHtml(value: string): string {
@@ -240,8 +259,124 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
         });
       }
 
+      type InlineRow = { kind: 'tag' | 'note'; title: string; meta: string; href: string };
+
+      /** 页内搜索框：输入即在下方出结果，支持 #标签 写法 */
+      function initInlineSearch() {
+        for (const root of document.querySelectorAll<HTMLElement>('[data-inline-search]')) {
+          if (root.dataset.bound === '1') continue;
+          root.dataset.bound = '1';
+
+          const input = root.querySelector<HTMLInputElement>('[data-inline-input]');
+          const drop = root.querySelector<HTMLElement>('[data-inline-drop]');
+          if (!input || !drop) continue;
+
+          let active = -1;
+
+          const close = () => {
+            drop.hidden = true;
+            drop.innerHTML = '';
+            active = -1;
+          };
+
+          const render = (list: InlineRow[], query: string) => {
+            active = list.length > 0 ? 0 : -1;
+            if (list.length === 0) {
+              drop.innerHTML = `<div class="s-empty">没找到「${escapeHtml(query)}」相关的内容</div>`;
+              drop.hidden = false;
+              return;
+            }
+            drop.innerHTML = list
+              .map(
+                (row, i) => `
+                <a href="${row.href}"${i === 0 ? ' class="active"' : ''}>
+                  <span class="s-kind${row.kind === 'tag' ? ' tag' : ''}">${row.kind === 'tag' ? '标签' : '笔记'}</span>
+                  <span class="s-title">${escapeHtml(row.title)}</span>
+                  <span class="s-meta">${escapeHtml(row.meta)}</span>
+                </a>`,
+              )
+              .join('');
+            drop.hidden = false;
+          };
+
+          const run = async () => {
+            const raw = input.value.trim();
+            if (!raw) {
+              close();
+              return;
+            }
+            const docs = await ensureIndex();
+            const { q, tagOnly } = normalizeQuery(raw);
+            if (!q) {
+              close();
+              return;
+            }
+
+            const tagIndex = buildTagIndex(docs);
+            const tagRows: InlineRow[] = [...tagIndex.entries()]
+              .filter(([tag]) => tag.toLowerCase().includes(q))
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 6)
+              .map(([tag, count]) => ({
+                kind: 'tag',
+                title: `#${tag}`,
+                meta: `${count} 篇`,
+                href: withBaseUrl(`tags/${encodeURIComponent(tag)}/`),
+              }));
+
+            const matched = tagOnly
+              ? docs.filter((doc) => doc.tags.some((tag) => tag.toLowerCase().includes(q)))
+              : docs
+                  .map((doc) => ({ doc, s: score(doc, raw) }))
+                  .filter((item) => item.s > 0)
+                  .sort((a, b) => b.s - a.s)
+                  .map((item) => item.doc);
+
+            const noteRows: InlineRow[] = matched.slice(0, 8).map((doc) => ({
+              kind: 'note',
+              title: doc.title,
+              meta: doc.tags[0] ?? '',
+              href: doc.url,
+            }));
+
+            render([...tagRows, ...noteRows], raw);
+          };
+
+          input.addEventListener('input', run);
+          input.addEventListener('focus', () => {
+            if (input.value.trim()) void run();
+          });
+          input.addEventListener('keydown', (event) => {
+            const links = [...drop.querySelectorAll<HTMLAnchorElement>('a')];
+            if (event.key === 'Escape') {
+              input.value = '';
+              close();
+              input.blur();
+              return;
+            }
+            if (links.length === 0) return;
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              const delta = event.key === 'ArrowDown' ? 1 : -1;
+              links[active]?.classList.remove('active');
+              active = (active + delta + links.length) % links.length;
+              links[active]?.classList.add('active');
+              links[active]?.scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'Enter') {
+              event.preventDefault();
+              window.location.href = (links[active] ?? links[0]).href;
+            }
+          });
+
+          document.addEventListener('click', (event) => {
+            if (!root.contains(event.target as Node)) close();
+          });
+        }
+      }
+
       function initPage() {
         bindSearchInput();
+        initInlineSearch();
 
         for (const pre of document.querySelectorAll<HTMLPreElement>('.prose pre')) {
           if (pre.dataset.copy === '1') continue;

@@ -305,6 +305,12 @@ main {
   z-index: 3;
 }
 
+/* 内页（专栏页）用：把黑条连带着下面所有内容一起往上提一点 */
+.band-tight .band-slot {
+  margin-top: -34px;
+  margin-bottom: 0;
+}
+
 .band {
   position: absolute;
   left: -3%;
@@ -319,16 +325,17 @@ main {
   padding-inline: clamp(24px, 5vw, 64px);
 }
 
+/* 栏目标签：不加底色，只用一根朱红竖线跟模块分开（方案 04） */
 .band .label {
   flex: none;
   display: flex;
   align-items: center;
   gap: 8px;
   height: 100%;
-  padding-inline: 18px;
-  background: var(--bg);
-  color: var(--ink);
-  border-right: 1px solid var(--ink);
+  padding-inline: 0 22px;
+  background: transparent;
+  color: var(--bg);
+  border-right: 2px solid var(--accent);
   font-size: 11px;
   letter-spacing: 0.16em;
   font-weight: 700;
@@ -339,7 +346,7 @@ main {
   font-style: normal;
   font-size: 9.5px;
   letter-spacing: 0.2em;
-  color: var(--muted);
+  color: #8b8781;
   font-weight: 400;
 }
 
@@ -648,6 +655,148 @@ main {
 /* -------------------------------------------------------------- 内页头部 */
 .page-head {
   padding-block: clamp(36px, 5vw, 60px) clamp(20px, 3vw, 32px);
+}
+
+/* 带右上角搜索框的头部：左标题、右胶囊搜索 */
+.page-head--row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .page-head--row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 胶囊搜索框：页内直接出结果，不弹窗 */
+.page-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 6px;
+  padding: 8px 14px 8px 16px;
+  width: clamp(220px, 26vw, 320px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  transition: all 0.22s var(--ease);
+}
+
+.page-search:focus-within {
+  border-color: var(--ink);
+  background: var(--bg);
+  box-shadow: 0 10px 30px -18px rgba(13, 13, 13, 0.5);
+}
+
+.page-search > svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--accent);
+}
+
+.page-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.page-search input::placeholder {
+  color: var(--faint);
+}
+
+.page-search input::-webkit-search-cancel-button,
+.page-search input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.page-search .kbd {
+  flex: none;
+}
+
+/* 搜索结果下拉 */
+.search-drop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: min(420px, 78vw);
+  max-height: 340px;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  box-shadow: 0 24px 60px -30px rgba(13, 13, 13, 0.55);
+}
+
+.search-drop[hidden] {
+  display: none;
+}
+
+.search-drop a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-2);
+  transition: background 0.15s var(--ease);
+}
+
+.search-drop a:last-child {
+  border-bottom: 0;
+}
+
+.search-drop a:hover,
+.search-drop a.active {
+  background: var(--bg-2);
+}
+
+.search-drop .s-kind {
+  flex: none;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  min-width: 42px;
+}
+
+.search-drop .s-kind.tag {
+  color: var(--accent);
+}
+
+.search-drop .s-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.search-drop a:hover .s-title,
+.search-drop a.active .s-title {
+  color: var(--accent);
+}
+
+.search-drop .s-meta {
+  margin-left: auto;
+  flex: none;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.search-drop .s-empty {
+  padding: 18px 14px;
+  font-size: 13px;
+  color: var(--muted);
 }
 
 .page-head .eyebrow {

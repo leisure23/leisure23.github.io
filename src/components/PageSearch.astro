@@ -1,0 +1,21 @@
+---
+/**
+ * 内页右上角的胶囊搜索框。
+ * 直接在框下面出结果（不弹窗），支持 `#标签` 写法，比如 #web。
+ */
+import Icon from './Icon.astro';
+---
+
+<div class="page-search" data-inline-search>
+  <Icon name="search" size={14} />
+  <input
+    type="search"
+    placeholder="搜索，或用 #标签"
+    autocomplete="off"
+    spellcheck="false"
+    aria-label="搜索站内文章或标签"
+    data-inline-input
+  />
+  <span class="kbd">Esc</span>
+  <div class="search-drop" data-inline-drop hidden></div>
+</div>

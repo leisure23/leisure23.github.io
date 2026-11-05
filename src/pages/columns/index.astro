@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ColumnBand from '../../components/ColumnBand.astro';
 import PostRow from '../../components/PostRow.astro';
+import PageSearch from '../../components/PageSearch.astro';
 import { getPosts, collectColumns } from '../../lib/posts';
 import { withBase } from '../../lib/url';
 
@@ -11,14 +12,18 @@ const columns = collectColumns(posts);
 
 <BaseLayout title="专栏" description="按主题整理的全部专栏。">
   <div class="wrap">
-    <div class="page-head">
-      <p class="eyebrow">Columns</p>
-      <h1>专栏</h1>
-      <p class="sub">把文章按主题归到几个专栏里。想加一个新专栏，只需要在 <code style="font-family: var(--mono); font-size: 13px;">src/consts.ts</code> 的 <code style="font-family: var(--mono); font-size: 13px;">COLUMNS</code> 里加一条，黑条会自动多一格。</p>
+    <div class="page-head page-head--row">
+      <div>
+        <p class="eyebrow">Columns</p>
+        <h1>专栏</h1>
+      </div>
+      <PageSearch />
     </div>
   </div>
 
-  <ColumnBand columns={columns} />
+  <div class="band-tight">
+    <ColumnBand columns={columns} />
+  </div>
 
   <div class="wrap">
     <div style="padding-block: 8px 56px;">

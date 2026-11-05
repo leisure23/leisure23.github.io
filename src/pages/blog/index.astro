@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostRow from '../../components/PostRow.astro';
+import PageSearch from '../../components/PageSearch.astro';
 import { getPosts } from '../../lib/posts';
 
 const posts = await getPosts();
@@ -8,10 +9,13 @@ const posts = await getPosts();
 
 <BaseLayout title="全部笔记" description="按时间倒序排列的全部笔记。">
   <div class="wrap">
-    <div class="page-head">
-      <p class="eyebrow">Archive</p>
-      <h1>全部笔记</h1>
-      <p class="sub">共 {posts.length} 篇。按 Ctrl + K 可以搜标题和正文。</p>
+    <div class="page-head page-head--row">
+      <div>
+        <p class="eyebrow">Archive</p>
+        <h1>全部笔记</h1>
+        <p class="sub">共 {posts.length} 篇。按 Ctrl + K 可以搜标题和正文。</p>
+      </div>
+      <PageSearch />
     </div>
 
     <div style="padding-block: 8px 56px;">

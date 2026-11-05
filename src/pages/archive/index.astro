@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostRow from '../../components/PostRow.astro';
+import PageSearch from '../../components/PageSearch.astro';
 import { getPosts, groupByYear } from '../../lib/posts';
 
 const posts = await getPosts();
@@ -9,10 +10,13 @@ const groups = groupByYear(posts);
 
 <BaseLayout title="归档" description="按年份整理的全部文章。">
   <div class="wrap">
-    <div class="page-head">
-      <p class="eyebrow">Timeline</p>
-      <h1>归档</h1>
-      <p class="sub">共 {posts.length} 篇，跨越 {groups.length} 个年份。</p>
+    <div class="page-head page-head--row">
+      <div>
+        <p class="eyebrow">Timeline</p>
+        <h1>归档</h1>
+        <p class="sub">共 {posts.length} 篇，跨越 {groups.length} 个年份。</p>
+      </div>
+      <PageSearch />
     </div>
 
     <div style="padding-block: 8px 64px;">
