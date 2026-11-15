@@ -6,7 +6,7 @@ tags: [sql注入, 数据库, sql]
 emoji: "📝"
 hue: 255
 featured: true
-draft: true
+draft: false
 ---
 # SQL 常见函数及语句
 
