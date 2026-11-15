@@ -267,6 +267,26 @@ main {
   -webkit-text-stroke: clamp(1.4px, 0.18vw, 2.4px) var(--ink);
 }
 
+/*
+ * 手机上「空心字」会糊：字号被 clamp 压到 58px，但描边只减到 1.4px，
+ * 比例比桌面粗 40%，再加上字重 800 + 负字距，「里」里面的三条横杠直接粘死。
+ * 所以小屏换成「荧光笔 + 深棕字」——任何浏览器都不会糊。
+ * 桌面端（>860px）保持原来的空心描边不动。
+ */
+@media (max-width: 860px) {
+  .hero h1 .outline {
+    display: inline-block;
+    color: #5a3a12;
+    -webkit-text-stroke: 0;
+    background: linear-gradient(
+      transparent 12%,
+      var(--mark) 12%,
+      var(--mark) 88%,
+      transparent 88%
+    );
+  }
+}
+
 .hero h1 .accent {
   color: var(--accent);
   padding-left: 0.03em;
