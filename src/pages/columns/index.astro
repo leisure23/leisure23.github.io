@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ColumnBand from '../../components/ColumnBand.astro';
 import PostRow from '../../components/PostRow.astro';
 import PageSearch from '../../components/PageSearch.astro';
 import { getPosts, collectColumns } from '../../lib/posts';
@@ -20,8 +21,12 @@ const columns = collectColumns(posts);
     </div>
   </div>
 
+  <div class="band-tight">
+    <ColumnBand columns={columns} />
+  </div>
+
   <div class="wrap">
-    <div style="padding-block: clamp(24px, 3.5vw, 44px) 56px;">
+    <div class="columns-list">
       <div class="section-head"><span>All Columns</span><span>{String(columns.length).padStart(2, '0')} Total</span></div>
 
       {columns.map((column, index) => (

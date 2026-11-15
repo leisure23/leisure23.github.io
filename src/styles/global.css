@@ -15,6 +15,8 @@
   --line-2: #e3e0d8;
   --accent: #ff3b00;
   --mark: #ffe08a;
+  /* 黑条倾斜角度（只在桌面端显示），改这一个数就行 */
+  --band-tilt: -1.4deg;
 
   --maxw: 1440px;
   --pad: clamp(20px, 3vw, 44px);
@@ -304,6 +306,141 @@ main {
   }
 }
 
+/* ------------------------------------------------------- 专栏黑条（倾斜） */
+/*
+ * 关键：旋转后的元素不占布局空间，会盖住下面的内容。
+ * 所以外面套一个 .band-slot 固定高度，把旋转后的高度预留出来，
+ * 这样任何缩放比例下都不会压住底下的文字。
+ */
+.band-slot {
+  position: relative;
+  height: 94px;
+  margin-top: -12px;
+  margin-bottom: 8px;
+  z-index: 3;
+}
+
+/* 内页（专栏页）用：把黑条连带着下面所有内容一起往上提一点 */
+.band-tight .band-slot {
+  margin-top: -34px;
+  margin-bottom: 0;
+}
+
+.band {
+  position: absolute;
+  left: -3%;
+  top: 50%;
+  width: 106%;
+  transform: translateY(-50%) rotate(var(--band-tilt));
+  background: var(--ink);
+  color: var(--bg);
+  display: flex;
+  align-items: stretch;
+  height: 56px;
+  padding-inline: clamp(24px, 5vw, 64px);
+}
+
+/* 栏目标签：不加底色，只用一根朱红竖线跟模块分开（方案 04） */
+.band .label {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding-inline: 0 22px;
+  background: transparent;
+  color: var(--bg);
+  border-right: 2px solid var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.band .label em {
+  font-style: normal;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  color: #8b8781;
+  font-weight: 400;
+}
+
+.band a.mod {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding-inline: 18px;
+  border-right: 1px solid rgba(241, 239, 234, 0.16);
+  white-space: nowrap;
+  color: inherit;
+  transition: background 0.22s var(--ease), color 0.22s var(--ease);
+}
+
+/* 悬停：黑格变成页面的米白色，像被"擦掉"一块 */
+.band a.mod:hover,
+.band a.mod:focus-visible {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.band a.mod .no {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.band a.mod .nm {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+.band a.mod .ct {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+}
+
+.band a.mod:hover .ct {
+  color: var(--muted);
+}
+
+.band a.mod .ar {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--accent);
+  opacity: 0.5;
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.band a.mod:hover .ar {
+  opacity: 1;
+  transform: translate(1px, -1px);
+}
+
+.band a.mod.add {
+  flex: 0 0 118px;
+  border-right: 0;
+  border-left: 1px dashed rgba(241, 239, 234, 0.24);
+  color: #cfcbc4;
+}
+
+.band a.mod.add .nm {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* 手机屏幕放不下一条斜带子，整条隐藏；桌面端保持原来的样子 */
+@media (max-width: 860px) {
+  .band-slot {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------- 分区标题 / 列表行 */
 .section-head {
   display: flex;
   align-items: baseline;
@@ -508,8 +645,25 @@ main {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: clamp(28px, 3.4vw, 44px);
-  /* 黑条删掉后，这里要自己撑开首屏和列表之间的间距 */
-  padding-block: clamp(30px, 4.2vw, 60px) 40px;
+  padding-block: 24px 40px;
+}
+
+/* 手机上黑条隐藏了，这段间距要自己撑起来 */
+@media (max-width: 860px) {
+  .home-grid {
+    padding-block: 36px 40px;
+  }
+}
+
+/* 专栏页列表：桌面端有黑条撑着，手机端黑条隐藏，需要自己留白 */
+.columns-list {
+  padding-block: 8px 56px;
+}
+
+@media (max-width: 860px) {
+  .columns-list {
+    padding-block: 28px 56px;
+  }
 }
 
 @media (max-width: 960px) {
