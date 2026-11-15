@@ -26,7 +26,6 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* 黑条的倾斜角度：改这里，占位槽的高度会自动跟着算 */
-  --band-tilt: -1.4deg;
 }
 
 /* ------------------------------------------------------------------ reset */
@@ -305,154 +304,6 @@ main {
   }
 }
 
-/* ------------------------------------------------------- 专栏黑条（倾斜） */
-/*
- * 关键：旋转后的元素不占布局空间，会盖住下面的内容。
- * 所以外面套一个 .band-slot 固定高度，把旋转后的高度预留出来，
- * 这样任何缩放比例下都不会压住底下的文字。
- */
-.band-slot {
-  position: relative;
-  height: 94px;
-  margin-top: -12px;
-  margin-bottom: 8px;
-  z-index: 3;
-}
-
-/* 内页（专栏页）用：把黑条连带着下面所有内容一起往上提一点 */
-.band-tight .band-slot {
-  margin-top: -34px;
-  margin-bottom: 0;
-}
-
-.band {
-  position: absolute;
-  left: -3%;
-  top: 50%;
-  width: 106%;
-  transform: translateY(-50%) rotate(var(--band-tilt));
-  background: var(--ink);
-  color: var(--bg);
-  display: flex;
-  align-items: stretch;
-  height: 56px;
-  padding-inline: clamp(24px, 5vw, 64px);
-}
-
-/* 栏目标签：不加底色，只用一根朱红竖线跟模块分开（方案 04） */
-.band .label {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 100%;
-  padding-inline: 0 22px;
-  background: transparent;
-  color: var(--bg);
-  border-right: 2px solid var(--accent);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.band .label em {
-  font-style: normal;
-  font-size: 9.5px;
-  letter-spacing: 0.2em;
-  color: #8b8781;
-  font-weight: 400;
-}
-
-.band a.mod {
-  flex: 1 1 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 100%;
-  padding-inline: 18px;
-  border-right: 1px solid rgba(241, 239, 234, 0.16);
-  white-space: nowrap;
-  color: inherit;
-  transition: background 0.22s var(--ease), color 0.22s var(--ease);
-}
-
-/* 悬停：黑格变成页面的米白色，像被"擦掉"一块 */
-.band a.mod:hover,
-.band a.mod:focus-visible {
-  background: var(--bg);
-  color: var(--ink);
-}
-
-.band a.mod .no {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-
-.band a.mod .nm {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
-}
-
-.band a.mod .ct {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--faint);
-}
-
-.band a.mod:hover .ct {
-  color: var(--muted);
-}
-
-.band a.mod .ar {
-  margin-left: auto;
-  font-size: 10px;
-  color: var(--accent);
-  opacity: 0.5;
-  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
-}
-
-.band a.mod:hover .ar {
-  opacity: 1;
-  transform: translate(1px, -1px);
-}
-
-.band a.mod.add {
-  flex: 0 0 118px;
-  border-right: 0;
-  border-left: 1px dashed rgba(241, 239, 234, 0.24);
-  color: #cfcbc4;
-}
-
-.band a.mod.add .nm {
-  font-size: 12.5px;
-  font-weight: 600;
-}
-
-@media (max-width: 860px) {
-  .band-slot {
-    height: auto;
-    margin-top: 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  .band {
-    position: relative;
-    left: 0;
-    top: 0;
-    width: 100%;
-    transform: none;
-    padding-inline: 0;
-  }
-  .band a.mod {
-    flex: 0 0 auto;
-  }
-}
-
-/* --------------------------------------------------- 分区标题 / 列表行 */
 .section-head {
   display: flex;
   align-items: baseline;
@@ -657,7 +508,8 @@ main {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: clamp(28px, 3.4vw, 44px);
-  padding-block: 24px 40px;
+  /* 黑条删掉后，这里要自己撑开首屏和列表之间的间距 */
+  padding-block: clamp(30px, 4.2vw, 60px) 40px;
 }
 
 @media (max-width: 960px) {
@@ -1254,6 +1106,86 @@ main {
 .copy-btn.done {
   color: #1a7f37;
   border-color: #1a7f37;
+}
+
+/* ---- 长代码块折叠 ---- */
+.code-wrap {
+  position: relative;
+  margin-block: 1.5em;
+}
+
+.code-wrap > pre {
+  margin-block: 0;
+}
+
+.code-wrap.is-clamped > pre {
+  max-height: 320px;
+  overflow-y: hidden;
+}
+
+/* 折起来时底部压一层渐隐，暗示"下面还有" */
+.code-wrap.is-clamped::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: 0;
+  height: 92px;
+  background: linear-gradient(to bottom, rgba(234, 229, 218, 0), rgba(234, 229, 218, 0.97) 74%);
+  pointer-events: none;
+}
+
+.code-toggle {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 6px 15px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.code-toggle:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* 展开后按钮回到正常流，落在代码块下方 */
+.code-wrap.is-open .code-toggle {
+  position: static;
+  display: block;
+  margin: 12px auto 0;
+  transform: none;
+}
+
+/* 触屏设备没有 hover，复制按钮要常显，否则等于没有 */
+@media (hover: none) {
+  .copy-btn {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 860px) {
+  .code-wrap.is-clamped > pre {
+    max-height: 260px;
+  }
+
+  .code-wrap.is-clamped::after {
+    height: 78px;
+  }
+
+  /* 手机上不可能 hover，复制按钮直接常显 */
+  .copy-btn {
+    opacity: 1;
+  }
 }
 
 /* --------------------------------------------------------------- 标签页 */

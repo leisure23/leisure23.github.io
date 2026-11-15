@@ -407,6 +407,31 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
             }, 1600);
           });
           pre.appendChild(button);
+
+          // ---- 长代码块折叠 ----
+          const lineCount = pre.querySelectorAll('.line').length;
+          const tooLong = lineCount >= 14 || pre.scrollHeight > 420;
+          if (!tooLong) continue;
+
+          const wrap = document.createElement('div');
+          wrap.className = 'code-wrap is-clamped';
+          pre.parentNode?.insertBefore(wrap, pre);
+          wrap.appendChild(pre);
+
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'code-toggle';
+          const setLabel = (open: boolean) => {
+            toggle.textContent = open ? '收起代码 ↑' : `展开全部 ${lineCount} 行 ↓`;
+            toggle.setAttribute('aria-expanded', String(open));
+          };
+          setLabel(false);
+          toggle.addEventListener('click', () => {
+            const open = wrap.classList.toggle('is-open');
+            wrap.classList.toggle('is-clamped', !open);
+            setLabel(open);
+          });
+          wrap.appendChild(toggle);
         }
 
         const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('.post-toc a')];

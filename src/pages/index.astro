@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ColumnBand from '../components/ColumnBand.astro';
 import PostRow from '../components/PostRow.astro';
 import Notice from '../components/Notice.astro';
 import PageSearch from '../components/PageSearch.astro';
@@ -28,8 +27,6 @@ const totalWords = posts.reduce((sum, post) => sum + readingTime(post.body ?? ''
     <div class="vertical">{HERO.vertical}</div>
     <div class="ghost">{HERO.ghostYear}</div>
   </section>
-
-  <ColumnBand columns={columns} />
 
   <div class="wrap">
     <div class="home-grid">
