@@ -30,9 +30,9 @@ export const SITE = {
 export const HERO = {
   kicker: 'Notes on Code & Theory',
   lines: [
-    { text: '还没想好', style: 'solid' },
-    { text: '这里', style: 'outline' },
-    { text: '写什么。', style: 'accent' },
+    { text: '欢迎来到', style: 'solid' },
+    { text: 'leisure', style: 'outline' },
+    { text: '的博客', style: 'accent' },
   ] as { text: string; style: 'solid' | 'outline' | 'accent' }[],
   /** 右侧竖排小字 */
   vertical: '从「知道」往「为什么」再挖一层',

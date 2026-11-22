@@ -14,6 +14,8 @@
   --line: #c9c5bb;
   --line-2: #e3e0d8;
   --accent: #ff3b00;
+  /* 首屏大字的红，比 --accent 深一档 */
+  --accent-deep: #b32900;
   --mark: #ffe08a;
   /* 黑条倾斜角度（只在桌面端显示），改这一个数就行 */
   --band-tilt: -1.4deg;
@@ -287,8 +289,9 @@ main {
   }
 }
 
+/* 首屏第三行：字号太大，用深一档的红，免得喧宾夺主（其它地方仍是 --accent） */
 .hero h1 .accent {
-  color: var(--accent);
+  color: var(--accent-deep);
   padding-left: 0.03em;
 }
 
