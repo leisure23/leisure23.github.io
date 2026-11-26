@@ -338,3 +338,5 @@ cookies = {
 # 回显: Issue with your mysql: XPATH syntax error: '~security'
 ```
 所以 18、19、20 三关的区别就是：18、19 是 INSERT，没有回显位，只能靠报错；20 是 SELECT，有三个回显位，联合查询直接出数据，还不用账号。
+
+~~hello~~
